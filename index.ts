@@ -1,25 +1,21 @@
-import express, { Application, Request, Response } from "express";
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const jobRoutes = require('./src/Routes/jobs.router');
 
-const app: Application = express();
-const port = 3000;
+const PORT = 8000;
+const DB_NAME = 'ekandra';
 
-// Body parsing Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.get(
-	"/",
-	async (req: Request, res: Response): Promise<Response> => {
-		return res.status(200).send({
-			message: "Hello World!",
+	mongoose
+		.connect("mongodb://localhost:27017/"+DB_NAME, { useNewUrlParser: true })
+		.then(() => {
+			const app = express();
+			app.use(cors());
+			app.use("/jobs", jobRoutes);
+			app.listen(PORT, () => {
+				console.log("Server has started!")
+			})
+		})
+		.catch((err:Error) => {
+			console.log(err)
 		});
-	}
-);
-
-try {
-	app.listen(port, (): void => {
-		console.log(`Connected successfully on port ${port}`);
-	});
-} catch (error) {
-	console.error(`Error occured: ${error.message}`);
-}
